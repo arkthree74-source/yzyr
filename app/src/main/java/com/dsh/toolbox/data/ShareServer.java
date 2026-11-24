@@ -49,6 +49,7 @@ public final class ShareServer {
             thread.setDaemon(true);
             thread.start();
             setEnabled(ctx, true);
+            ShareBeacon.start(ctx);
             return address(ctx);
         } catch (Exception e) {
             running = false;
@@ -64,6 +65,7 @@ public final class ShareServer {
         }
         server = null;
         thread = null;
+        ShareBeacon.stop();
         setEnabled(ctx, false);
     }
 
