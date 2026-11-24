@@ -96,18 +96,24 @@ app/src/main/java/com/dsh/toolbox/
 
 ```json
 {
-  "versionCode": 15,
-  "versionName": "2.3",
-  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/releases/yzyr-v2.3.apk",
-  "size": 5201266,
+  "versionCode": 17,
+  "versionName": "2.5",
+  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@<commit-sha>/releases/yzyr-v2.5.apk",
+  "size": 5202862,
   "sha256": "……",
-  "notes": "这次改了什么"
+  "notes": "· 这个版本改了什么\n· 一条一行"
 }
 ```
 
-App 里的 `Updater.DEFAULT_MANIFEST` 指向这个清单（走 jsDelivr CDN，国内可直连）：`https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/update.json`。检查到 `versionCode` 比本机大就提示下载；下载后校验 **sha256** 与**签名证书**，两者都对才拉起系统安装器，所以别人即使改了 APK 也装不上。
+App 取清单走**两条通道**：先请求 GitHub 接口 `https://api.github.com/repos/arkthree74-source/yzyr/contents/update.json`（加 `Accept: application/vnd.github.raw`，永远是最新的），失败才退回 jsDelivr CDN（`https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/update.json`）。
 
-发新版只要三步：改 `versionCode`/`versionName` → 编译 → 把新 APK 放进 `releases/`、更新 `update.json`。
+> 为什么不用 CDN 当主通道：jsDelivr 会把 `@main` 这个分支名解析结果缓存约 12 小时，且文件级 purge 不一定能立刻刷新，会出现「明明推了新清单，App 拿到的还是几小时前的旧版本」。所以 CDN 只当兜底。
+
+清单里的 `url` **必须钉到 commit SHA**（`@<commit-sha>`，而不是 `@main`）：SHA 对应的文件内容不可变，CDN 可以永久缓存，也不会撞上分支解析的旧缓存。
+
+检查到 `versionCode` 比本机大就弹窗提示；下载后校验 **sha256** 与**签名证书**，两者都对才拉起系统安装器，所以别人即使改了 APK 也装不上。打开 App 时会自动查一次；点「以后再说」，同一个版本 24 小时内不再打扰。
+
+发新版只要三步：改 `versionCode`/`versionName` → 编译 → 把新 APK 放进 `releases/`、更新 `update.json`（`url` 记得换成新 commit 的 SHA）。
 
 ---
 
