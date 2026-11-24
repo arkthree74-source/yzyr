@@ -1,8 +1,8 @@
 {
-  "versionCode": 17,
-  "versionName": "2.5",
-  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@fc8d95ce0d02816ea5be84c54f9075aaa250d971/releases/yzyr-v2.5.apk",
-  "size": 5202862,
-  "sha256": "8f815221cfabf5528b37907a2959b8352354ae697c6c7352064458aded1a37f5",
-  "notes": "· 设置 → 更新记录：能看到每个版本改了什么\n· 发现新版本时，弹窗里直接列出这个版本的新内容\n· 打开 App 就查一次更新（点「以后再说」24 小时内不再打扰）\n· 更新源改成两条通道：先问 GitHub 接口（永远最新），失败再走 CDN"
+    "notes":  "同步时能看到进度：现在抓哪门课、抓到第几门、等了多久；不想等可以「放到后台」。检查更新失败时会说清是网络问题还是已经最新。新增「课堂派」平台入口。",
+    "versionName":  "2.6",
+    "sha256":  "8e1437dbc59b814f1c7f0b8cc43a01fb18b49d4363f88405dc4e400b9d4704c2",
+    "versionCode":  18,
+    "url":  "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@754c4cb1b9a570090483251f0e7dd70d5b1a58e0/releases/yzyr-v2.6.apk",
+    "size":  5210358
 }
