@@ -175,6 +175,8 @@ public class WebActivity extends AppCompatActivity {
             // 课堂派的接口还在摸底：先把它几个候选接口的原始响应存下来，确认结构再接自动同步
             hint.setText("正在试课堂派接口，几秒就好…");
             new Thread(() -> {
+                // 先把当前 WebView 的 cookie 落一份到 CookieStore，后台线程才读得到
+                com.dsh.toolbox.data.CookieStore.capture(this);
                 String log = com.dsh.toolbox.data.KtpClient.probe(this);
                 runOnUiThread(() -> {
                     hint.setText("课堂派接口探测完成，结果已存到 ktp_probe.txt");
@@ -516,6 +518,7 @@ public class WebActivity extends AppCompatActivity {
                 }
                 injectScripts();
                 captureToken();
+                if (Sources.KTP.equals(source)) fitDesktopPage(view);
                 if (pendingCourses) {
                     boolean ready = Sources.ZHS.equals(source)
                             ? (!AuthStore.token(WebActivity.this, source).isEmpty()
@@ -546,6 +549,18 @@ public class WebActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    /**
+     * 课堂派这类桌面网页自带 width=device-width 的 viewport，宽屏手机上右侧会被裁掉。
+     * 这里把 viewport 宽度钉成 1080，配合 useWideViewPort + overview 让整页缩放进屏幕。
+     */
+    private void fitDesktopPage(WebView view) {
+        String js = "(function(){try{var s='width=1080';var m=document.querySelector('meta[name=viewport]');"
+                + "if(m){m.setAttribute('content',s)}else{var x=document.createElement('meta');"
+                + "x.setAttribute('name','viewport');x.setAttribute('content',s);document.head.appendChild(x)}"
+                + "}catch(e){}})()";
+        view.evaluateJavascript(js, null);
     }
 
     private void applyUa() {

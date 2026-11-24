@@ -332,6 +332,9 @@ com.google.android.material.bottomnavigation.BottomNavigationView bottomNav =
                         .append(e.getValue()).append(" 条");
                 if (report.authMissing.contains(key)) {
                     sb.append("（登录信息没拿到，去「选取课程」点「登录」把页面打开一次）");
+                } else {
+                    String note = report.notes.get(key);
+                    if (note != null && !note.isEmpty()) sb.append("（").append(note).append("）");
                 }
                 sb.append('\n');
             }

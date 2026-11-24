@@ -89,6 +89,7 @@ public class SettingsActivity extends AppCompatActivity {
         row("检查更新", "当前 " + versionName(), v -> UpdateFlow.check(this, false));
         row("更新记录", "每个版本改了什么", v -> com.dsh.toolbox.ui.Changelog.show(this));
         row("这个 App 干了什么", "不保存账号密码，只在本机存登录状态", v -> about());
+        row("同步诊断", "某个平台抓不到时，把这页发给我", v -> showDiag());
 
         TextView foot = new TextView(this);
         foot.setText("本应用不是学校官方客户端，数据来自你自己登录后的页面。"
@@ -166,6 +167,60 @@ public class SettingsActivity extends AppCompatActivity {
                     .setPositiveButton("去设置", (d, w) -> KeepAliveDialog.show(this))
                     .setNegativeButton("以后再说", null)
                     .show();
+        }
+    }
+
+    /**
+     * 同步诊断：把最近一次同步的日志和智慧树/学习通的 HTTP 摘要显示出来。
+     * 用户没法连电脑时，让他截这一页就够了。
+     */
+    private void showDiag() {
+        String[] files = {"sync_diag.log", "zhs_http.log", "cx_http.log", "ykt_http.log"};
+        StringBuilder sb = new StringBuilder();
+        sb.append("App ").append(versionName()).append(" · ")
+          .append(new java.text.SimpleDateFormat("M/d HH:mm", java.util.Locale.CHINA)
+                  .format(new java.util.Date())).append("\n\n");
+        for (String name : files) {
+            String text = readFile(name);
+            if (text == null || text.trim().isEmpty()) continue;
+            sb.append("──── ").append(name).append(" ────\n");
+            sb.append(text.length() > 3000 ? text.substring(0, 3000) : text).append("\n\n");
+        }
+        if (sb.length() < 40) sb.append("还没有日志。先点一次「同步」。");
+
+        TextView t = new TextView(this);
+        t.setText(sb.toString());
+        t.setTextSize(10);
+        t.setTypeface(android.graphics.Typeface.MONOSPACE);
+        t.setTextColor(getColor(R.color.text));
+        t.setTextIsSelectable(true);
+        t.setPadding(dp(16), dp(10), dp(16), dp(10));
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(t);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("同步诊断")
+                .setView(scroll)
+                .setPositiveButton("知道了", null)
+                .show();
+    }
+
+    private String readFile(String name) {
+        try {
+            java.io.File f = new java.io.File(getFilesDir(), name);
+            if (!f.exists()) return null;
+            byte[] buf = new byte[(int) f.length()];
+            try (java.io.FileInputStream in = new java.io.FileInputStream(f)) {
+                int off = 0;
+                while (off < buf.length) {
+                    int n = in.read(buf, off, buf.length - off);
+                    if (n <= 0) break;
+                    off += n;
+                }
+            }
+            return new String(buf, "UTF-8");
+        } catch (Throwable t) {
+            return null;
         }
     }
 

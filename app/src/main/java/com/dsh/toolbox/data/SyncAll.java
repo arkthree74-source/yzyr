@@ -22,6 +22,8 @@ public final class SyncAll {
         public final java.util.Map<String, Integer> perPlatform = new java.util.LinkedHashMap<>();
         /** 平台有选课但登录信息缺失。 */
         public final java.util.Set<String> authMissing = new java.util.LinkedHashSet<>();
+        /** 每个平台这次「为什么是 0 条」的说明，空字符串表示正常。 */
+        public final java.util.Map<String, String> notes = new java.util.LinkedHashMap<>();
     }
 
     private SyncAll() {
@@ -74,6 +76,7 @@ public final class SyncAll {
         int n = ZhsSync.syncSelected(ctx, log, prog);
         r.kept += n;
         r.perPlatform.put(Sources.ZHS, n);
+        r.notes.put(Sources.ZHS, n == 0 ? ZhsSync.lastNote : "");
         if (!auth) {
             r.authMissing.add(Sources.ZHS);
             if (n == 0) r.sessionLost = true;

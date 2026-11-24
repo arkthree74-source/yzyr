@@ -26,6 +26,8 @@ public final class SyncHistory {
         public boolean sessionLost;
         /** 形如 {yuketang=30, zhihuishu=14}，按抓取顺序。 */
         public String detail = "";
+        /** 形如「智慧树 0（有 3 门课的任务不在监控范围）」的补充说明。 */
+        public String note = "";
 
         public String time() {
             return new SimpleDateFormat("M/d HH:mm", Locale.CHINA).format(new Date(at));
@@ -34,6 +36,7 @@ public final class SyncHistory {
         public String line() {
             StringBuilder b = new StringBuilder(time()).append("  ·  ").append(kept).append(" 条");
             if (detail.length() > 0) b.append("  ·  ").append(detail);
+            if (note.length() > 0) b.append("\n      ").append(note);
             if (sessionLost) b.append("  ·  需要重新登录");
             return b.toString();
         }
@@ -55,6 +58,12 @@ public final class SyncHistory {
             JSONObject d = new JSONObject();
             for (String k : r.perPlatform.keySet()) d.put(k, r.perPlatform.get(k));
             o.put("detail", d.toString());
+            JSONObject n = new JSONObject();
+            for (String k : r.notes.keySet()) {
+                String v = r.notes.get(k);
+                if (v != null && !v.isEmpty()) n.put(k, v);
+            }
+            o.put("notes", n.toString());
             JSONArray out = new JSONArray();
             out.put(o);
             for (int i = 0; i < arr.length() && out.length() < MAX; i++) out.put(arr.get(i));
@@ -74,6 +83,7 @@ public final class SyncHistory {
             e.kept = o.optInt("kept");
             e.sessionLost = o.optBoolean("lost");
             e.detail = pretty(o.optString("detail", ""));
+            e.note = prettyNotes(o.optString("notes", ""));
             out.add(e);
         }
         return out;
@@ -97,6 +107,26 @@ public final class SyncHistory {
                 String k = it.next();
                 if (b.length() > 0) b.append(" · ");
                 b.append(Sources.nameOf(k)).append(' ').append(o.optInt(k));
+            }
+            return b.toString();
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    /** {"zhihuishu":"有 3 门课的任务不在监控范围"} → "智慧树：有 3 门课的任务不在监控范围" */
+    private static String prettyNotes(String json) {
+        if (json == null || json.length() < 3) return "";
+        try {
+            JSONObject o = new JSONObject(json);
+            StringBuilder b = new StringBuilder();
+            java.util.Iterator<String> it = o.keys();
+            while (it.hasNext()) {
+                String k = it.next();
+                String v = o.optString(k, "");
+                if (v.isEmpty()) continue;
+                if (b.length() > 0) b.append("；");
+                b.append(Sources.nameOf(k)).append("：").append(v);
             }
             return b.toString();
         } catch (Throwable t) {

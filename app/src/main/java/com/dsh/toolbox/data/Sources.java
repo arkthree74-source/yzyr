@@ -30,7 +30,7 @@ public final class Sources {
             new Info(YKT, "雨课堂", "雨", "https://www.yuketang.cn/web", R.color.src_ykt),
             new Info(ZHS, "智慧树", "智", "https://onlineweb.zhihuishu.com/onlinestuh5", R.color.src_zhs),
             new Info(CX, "超星学习通", "学", "https://i.mooc.chaoxing.com/space/index", R.color.src_cx),
-            new Info(KTP, "课堂派", "派", "https://www.ketangpai.com/", R.color.src_ktp),
+            new Info(KTP, "课堂派", "派", "https://www.ketangpai.com/#/login", R.color.src_ktp),
             new Info(JW, "教务系统", "课", "https://jwxt.upc.edu.cn/jsxsd/framework/xsMainV.htmlx", R.color.brand)
     };
 
