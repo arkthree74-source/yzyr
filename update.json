@@ -1,8 +1,8 @@
 {
-  "versionCode": 19,
-  "versionName": "2.7",
-  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@2d32a1850f4761386f51c1ebc7a311743acd3cb9/releases/yzyr-v2.7.apk",
-  "size": 5213566,
-  "sha256": "9fc167a55c6bd58159e7e388c45d2ebf2d81ed8c93dcc08ea8029b87693684c4",
-  "notes": "修智慧树「有作业却抓不到」：改成按页抓取，课程名也做了容错\n同步记录会写明为什么是 0 条，比如「有 3 门课的任务不在监控范围」\n设置里新增「同步诊断」，抓不到时截图发我就能定位"
+  "versionCode": 20,
+  "versionName": "2.8",
+  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@45834f712fef65f0d77897c42bcf95ee87bc88d2/releases/yzyr-v2.8.apk",
+  "size": 5215546,
+  "sha256": "f1deaffd1ee990bf60c247041d5e057e5ac623713a09ee11a4a88bde15117793",
+  "notes": "智慧树课程列表改成按页拉全，之前可能只显示第一页的课\n学习通把每门课的临期任务也合并进来，减少漏抓\n同步诊断里能看到这次抓到多少门课"
 }
