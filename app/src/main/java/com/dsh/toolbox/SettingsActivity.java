@@ -18,6 +18,7 @@ import com.dsh.toolbox.data.KeepAliveService;
 import com.dsh.toolbox.data.Sources;
 import com.dsh.toolbox.data.Store;
 import com.dsh.toolbox.data.SyncHistory;
+import com.dsh.toolbox.data.ShareServer;
 import com.dsh.toolbox.data.SyncSettings;
 import com.dsh.toolbox.ui.GuideFlow;
 import com.dsh.toolbox.ui.GuideOverlay;
@@ -40,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView keepValue;
     private TextView historyValue;
     private TextView coursesValue;
+    private TextView shareValue;
     private View keepAliveRow;
     private View lastRowView;
     private boolean guideShown;
@@ -76,6 +78,7 @@ public class SettingsActivity extends AppCompatActivity {
         section("我的账号");
         coursesValue = row("选取课程", coursesSummary(), v ->
                 startActivity(new Intent(this, PlatformsActivity.class)));
+        shareValue = row("共享给电脑", shareSummary(), v -> showShare());
         row("新手引导", "带你把登录、选课、同步走一遍", v -> {
             GuideFlow.set(this, GuideFlow.MAIN);
             Intent i = new Intent(this, MainActivity.class);
@@ -103,8 +106,48 @@ public class SettingsActivity extends AppCompatActivity {
         updateValues();
     }
 
+    private String shareSummary() {
+        if (!ShareServer.isRunning()) return "手机和电脑同一 Wi-Fi 时才用，点这里开";
+        String a = ShareServer.address(this);
+        return a.length() == 0 ? "已开启（没拿到 IP，先连上 Wi-Fi）" : "已开启 " + a;
+    }
+
+    private void showShare() {
+        if (ShareServer.isRunning()) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("共享给电脑")
+                    .setMessage("地址：" + ShareServer.address(this)
+                            + "\n\n在电脑版里点「从手机拉取」，填这个地址就行。"
+                            + "\n关掉之后电脑就连不上了。")
+                    .setPositiveButton("关掉共享", (d, w) -> {
+                        ShareServer.stop(this);
+                        render();
+                    })
+                    .setNegativeButton("继续开着", null)
+                    .show();
+            return;
+        }
+        String addr = ShareServer.start(this);
+        if (addr.length() == 0) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("没能开启")
+                    .setMessage("先连上 Wi-Fi（或者开热点给电脑连），再试一次。")
+                    .setPositiveButton("知道了", null)
+                    .show();
+            return;
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("共享已开启")
+                .setMessage("地址：" + addr
+                        + "\n\n电脑版：设置 → 从手机拉取 → 填这个地址。"
+                        + "\n\n注意：手机和电脑要在同一个 Wi-Fi 下；宿舍路由器如果开了「设备隔离」会连不上，可以把手机热点打开、让电脑连手机。")
+                .setPositiveButton("知道了", null)
+                .show();
+        render();
+    }
+
     private void updateValues() {
-        if (freqValue != null) freqValue.setText(SyncSettings.label(this));
+        if (shareValue != null) shareValue.setText(shareSummary());
         if (keepValue != null) {
             keepValue.setText((KeepAliveService.on(this) ? "常驻通知已开 · " : "") + "让系统别把它清掉");
         }

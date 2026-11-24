@@ -4,6 +4,7 @@ import android.app.Application;
 import android.webkit.CookieManager;
 
 import com.dsh.toolbox.data.CookieStore;
+import com.dsh.toolbox.data.ShareServer;
 
 /**
  * 进程启动时初始化 cookie 存档。
@@ -18,6 +19,10 @@ public class HomeworkApp extends Application {
     public void onCreate() {
         super.onCreate();
         CookieStore.init(this);
+        try {
+            if (ShareServer.enabled(this)) ShareServer.start(this);
+        } catch (Throwable ignored) {
+        }
         try {
             CookieManager.getInstance().setAcceptCookie(true);
         } catch (Throwable ignored) {
