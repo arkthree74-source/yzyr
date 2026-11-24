@@ -1,8 +1,8 @@
 {
-  "versionCode": 17,
-  "versionName": "2.5",
+  "versionCode": 18,
+  "versionName": "2.5-test",
   "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@fc8d95ce0d02816ea5be84c54f9075aaa250d971/releases/yzyr-v2.5.apk",
   "size": 5202862,
   "sha256": "8f815221cfabf5528b37907a2959b8352354ae697c6c7352064458aded1a37f5",
-  "notes": "· 设置 → 更新记录：能看到每个版本改了什么\n· 发现新版本时，弹窗里直接列出这个版本的新内容\n· 打开 App 就查一次更新（点「以后再说」24 小时内不再打扰）\n· 更新源改成两条通道：先问 GitHub 接口（永远最新），失败再走 CDN"
+  "notes": "· 测试：更新源是否通畅"
 }
