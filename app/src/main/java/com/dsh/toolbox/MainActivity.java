@@ -254,14 +254,77 @@ com.google.android.material.bottomnavigation.BottomNavigationView bottomNav =
                     .show();
             return;
         }
+        // 同步进度：一条确定进度的进度条 + 当前在抓哪门课 + 已经等了多久。
+        final android.widget.TextView pLabel = new android.widget.TextView(this);
+        pLabel.setText("正在准备…");
+        pLabel.setTextSize(14f);
+        pLabel.setTextColor(getColor(R.color.text));
+        final com.google.android.material.progressindicator.LinearProgressIndicator pBar =
+                new com.google.android.material.progressindicator.LinearProgressIndicator(this);
+        pBar.setIndeterminate(true);
+        pBar.setTrackThickness(dp(6));
+        pBar.setIndicatorColor(getColor(R.color.brand));
+        pBar.setTrackColor(0x1A2F6FED);
+        final android.widget.TextView pCount = new android.widget.TextView(this);
+        pCount.setTextSize(12f);
+        pCount.setTextColor(getColor(R.color.text3));
+        final android.widget.TextView pTip = new android.widget.TextView(this);
+        pTip.setText("三门平台会挨个跑一遍，几十秒是正常的；不想等可以「放到后台」，抓完会告诉你结果。");
+        pTip.setTextSize(11.5f);
+        pTip.setTextColor(getColor(R.color.text3));
+
+        android.widget.LinearLayout box = new android.widget.LinearLayout(this);
+        box.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int pPad = dp(22);
+        box.setPadding(pPad, dp(6), pPad, 0);
+        android.widget.LinearLayout.LayoutParams lp =
+                new android.widget.LinearLayout.LayoutParams(-1, -2);
+        lp.bottomMargin = dp(10);
+        box.addView(pLabel, lp);
+        android.widget.LinearLayout.LayoutParams lpBar =
+                new android.widget.LinearLayout.LayoutParams(-1, -2);
+        lpBar.bottomMargin = dp(8);
+        box.addView(pBar, lpBar);
+        android.widget.LinearLayout.LayoutParams lpCount =
+                new android.widget.LinearLayout.LayoutParams(-1, -2);
+        lpCount.bottomMargin = dp(10);
+        box.addView(pCount, lpCount);
+        box.addView(pTip, new android.widget.LinearLayout.LayoutParams(-1, -2));
+
+        final long startedAt = System.currentTimeMillis();
         final AlertDialog progress = new MaterialAlertDialogBuilder(this)
                 .setTitle("正在同步作业…")
-                .setMessage("只抓取你选中的课程，请稍候")
+                .setView(box)
                 .setCancelable(false)
+                .setNegativeButton("放到后台", (d, w) -> {
+                    // 只关掉对话框，同步继续跑；跑完照旧弹结果
+                })
                 .create();
         progress.show();
+
+        // 每秒刷新一次「已用 Ns」，让用户知道没卡死
+        final android.os.Handler ticker = new android.os.Handler(android.os.Looper.getMainLooper());
+        final Runnable[] tick = new Runnable[1];
+        tick[0] = () -> {
+            if (!progress.isShowing()) return;
+            long sec = (System.currentTimeMillis() - startedAt) / 1000;
+            if (pBar.isIndeterminate()) pCount.setText("已用 " + sec + " 秒");
+            ticker.postDelayed(tick[0], 1000);
+        };
+        ticker.postDelayed(tick[0], 1000);
+
         new Thread(() -> {
-            com.dsh.toolbox.data.SyncAll.Report report = com.dsh.toolbox.data.SyncAll.run(this);
+            com.dsh.toolbox.data.SyncAll.Report report = com.dsh.toolbox.data.SyncAll.run(this,
+                    (done, total, label) -> runOnUiThread(() -> {
+                        if (!progress.isShowing()) return;
+                        pLabel.setText(label);
+                        if (total <= 0) return;
+                        if (pBar.isIndeterminate()) pBar.setIndeterminate(false);
+                        pBar.setMax(total);
+                        pBar.setProgress(Math.min(done, total), true);
+                        long sec = (System.currentTimeMillis() - startedAt) / 1000;
+                        pCount.setText(done + " / " + total + " · 已用 " + sec + " 秒");
+                    }));
             StringBuilder sb = new StringBuilder();
             for (java.util.Map.Entry<String, Integer> e : report.perPlatform.entrySet()) {
                 String key = e.getKey();
@@ -279,7 +342,8 @@ com.google.android.material.bottomnavigation.BottomNavigationView bottomNav =
             String title = lost ? "同步完成 · 有平台需要重新登录" : "同步完成";
             String log = report.log;
             runOnUiThread(() -> {
-                if (!isFinishing()) progress.dismiss();
+                ticker.removeCallbacks(tick[0]);
+                if (!isFinishing() && progress.isShowing()) progress.dismiss();
                 com.google.android.material.dialog.MaterialAlertDialogBuilder b =
                         new MaterialAlertDialogBuilder(this)
                                 .setTitle(title)

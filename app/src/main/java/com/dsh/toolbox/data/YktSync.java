@@ -79,23 +79,34 @@ public final class YktSync {
      * @param log optional diagnostics sink
      */
     public static int syncSelected(Context ctx, StringBuilder log) {
+        return syncSelected(ctx, log, null);
+    }
+
+    /**
+     * 同 {@link #syncSelected(Context, StringBuilder)}，额外汇报进度，界面可以画进度条。
+     */
+    public static int syncSelected(Context ctx, StringBuilder log, SyncProgress prog) {
         List<Course> picked = CourseStore.selected(ctx, Sources.YKT);
         if (log != null) log.append("selected courses=").append(picked.size()).append('\n');
+        if (prog != null) prog.plan(picked.size());
         int total = 0;
         int failed = 0;
         java.util.Set<String> keep = new java.util.HashSet<>();
         for (Course c : picked) {
             keep.add(c.name);
+            if (prog != null) prog.note("雨课堂 · " + c.name);
             if (c.skuId <= 0) c.skuId = lookupSku(c, log);
             if (c.skuId <= 0) {
                 failed++;
                 if (log != null) log.append("  ").append(c.name).append(" no sku, skipped\n");
+                if (prog != null) prog.step("雨课堂 · " + c.name);
                 continue;
             }
             List<Homework> items = fetchTodo(ctx, c, log);
             if (items == null) {
                 // 网络或登录态出问题：保留旧数据，绝不当作“这门课没有作业”清空
                 failed++;
+                if (prog != null) prog.step("雨课堂 · " + c.name);
                 continue;
             }
             total += items.size();
@@ -103,6 +114,7 @@ public final class YktSync {
             if (log != null) {
                 log.append("  ").append(c.name).append(": kept=").append(items.size()).append('\n');
             }
+            if (prog != null) prog.step("雨课堂 · " + c.name);
         }
         // 时间戳照常记：哪怕只有几门课失败，也算“这次跑过了”，否则 catchUp 会认为一直没同步过，
         // 每次打开应用都立刻重扫 37 门课（实测就是这么烧流量的）。

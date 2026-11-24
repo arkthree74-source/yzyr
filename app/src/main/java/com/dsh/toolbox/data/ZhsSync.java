@@ -71,6 +71,11 @@ public final class ZhsSync {
 
     /** Pull every open task, keep the ones that belong to a monitored course. */
     public static int syncSelected(Context ctx, StringBuilder log) {
+        return syncSelected(ctx, log, null);
+    }
+
+    /** 同 {@link #syncSelected(Context, StringBuilder)}，额外汇报进度。 */
+    public static int syncSelected(Context ctx, StringBuilder log, SyncProgress prog) {
         ZhsClient.init(ctx);
         List<Course> picked = CourseStore.selected(ctx, Sources.ZHS);
         Set<String> keep = new HashSet<>();
@@ -81,6 +86,10 @@ public final class ZhsSync {
             Store.get(ctx).setLastSync(Sources.ZHS, System.currentTimeMillis());
             return 0;
         }
+        if (prog != null) {
+            prog.plan(1);
+            prog.note("智慧树 · 正在取未完成列表");
+        }
 
         String body;
         try {
@@ -88,6 +97,8 @@ public final class ZhsSync {
         } catch (Throwable t) {
             if (log != null) log.append("zhs FAILED ").append(t).append('\n');
             return 0;
+        } finally {
+            if (prog != null) prog.step("智慧树 · 解析");
         }
         if (body == null) return 0;
         write(ctx, "zhs_todo.json", body);

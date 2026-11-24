@@ -43,6 +43,7 @@ public class PlatformsActivity extends AppCompatActivity {
         bind(R.id.cardYkt, Sources.ALL[0]);
         bind(R.id.cardZhs, Sources.ALL[1]);
         bind(R.id.cardCx, Sources.ALL[2]);
+        bind(R.id.cardKtp, Sources.ALL[3]);
     }
 
     @Override
@@ -51,6 +52,7 @@ public class PlatformsActivity extends AppCompatActivity {
         refreshStatus(Sources.ALL[0], R.id.cardYkt);
         refreshStatus(Sources.ALL[1], R.id.cardZhs);
         refreshStatus(Sources.ALL[2], R.id.cardCx);
+        refreshStatus(Sources.ALL[3], R.id.cardKtp);
         maybeGuide();
     }
 

@@ -8,6 +8,7 @@ public final class Sources {
     public static final String ZHS = "zhs";
     public static final String CX = "cx";
     public static final String JW = "jw";
+    public static final String KTP = "ktp";
 
     public static final class Info {
         public final String key;
@@ -29,10 +30,11 @@ public final class Sources {
             new Info(YKT, "雨课堂", "雨", "https://www.yuketang.cn/web", R.color.src_ykt),
             new Info(ZHS, "智慧树", "智", "https://onlineweb.zhihuishu.com/onlinestuh5", R.color.src_zhs),
             new Info(CX, "超星学习通", "学", "https://i.mooc.chaoxing.com/space/index", R.color.src_cx),
+            new Info(KTP, "课堂派", "派", "https://www.ketangpai.com/", R.color.src_ktp),
             new Info(JW, "教务系统", "课", "https://jwxt.upc.edu.cn/jsxsd/framework/xsMainV.htmlx", R.color.brand)
     };
 
-    public static final String[] ALL_KEYS = {YKT, ZHS, CX, JW};
+    public static final String[] ALL_KEYS = {YKT, ZHS, CX, KTP, JW};
 
     private Sources() {
     }

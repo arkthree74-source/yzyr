@@ -73,14 +73,18 @@ public final class UpdateFlow {
             ph[0].show();
         }
         new Thread(() -> {
-            final Updater.Info info = Updater.check(act, url);
+            final Updater.Result res = Updater.checkDetailed(act, url);
             act.runOnUiThread(() -> {
                 if (ph[0] != null && ph[0].isShowing()) ph[0].dismiss();
                 if (act.isFinishing()) return;
-                if (info == null) {
-                    if (!silent) Toast.makeText(act, "已经是最新版本", Toast.LENGTH_SHORT).show();
+                if (res.info == null) {
+                    if (!silent) {
+                        Toast.makeText(act,
+                                res.reachable ? "已经是最新版本" : "检查失败：连不上更新服务器，请检查网络",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    show(act, info);
+                    show(act, res.info);
                 }
             });
         }).start();

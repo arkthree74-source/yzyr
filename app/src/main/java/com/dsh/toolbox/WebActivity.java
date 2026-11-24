@@ -112,7 +112,8 @@ public class WebActivity extends AppCompatActivity {
         if (source == null) source = Sources.YKT;
         info = Sources.byKey(source);
         desktop = store.prefs().getBoolean("desktop_" + source,
-                Sources.CX.equals(source) || Sources.JW.equals(source));
+                Sources.CX.equals(source) || Sources.JW.equals(source)
+                || Sources.KTP.equals(source));
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         this.toolbar = toolbar;
@@ -155,13 +156,35 @@ public class WebActivity extends AppCompatActivity {
 
     /** After login every platform leads to course picking; the 教务系统 leads to its 课表 page. */
     private void applyPrimaryAction() {
-        btnExtract.setText(Sources.JW.equals(source) ? "打开课表查询" : "选取课程");
+        if (Sources.JW.equals(source)) {
+            btnExtract.setText("打开课表查询");
+        } else if (Sources.KTP.equals(source)) {
+            btnExtract.setText("测一下课堂派接口");
+        } else {
+            btnExtract.setText("选取课程");
+        }
     }
 
     private void onPrimaryAction() {
         if (Sources.JW.equals(source)) {
             hint.setText("正在打开「学生个人课表」…");
             web.loadUrl(JW_TABLE_URL);
+            return;
+        }
+        if (Sources.KTP.equals(source)) {
+            // 课堂派的接口还在摸底：先把它几个候选接口的原始响应存下来，确认结构再接自动同步
+            hint.setText("正在试课堂派接口，几秒就好…");
+            new Thread(() -> {
+                String log = com.dsh.toolbox.data.KtpClient.probe(this);
+                runOnUiThread(() -> {
+                    hint.setText("课堂派接口探测完成，结果已存到 ktp_probe.txt");
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle("课堂派接口探测")
+                            .setMessage(log)
+                            .setPositiveButton("好", null)
+                            .show();
+                });
+            }).start();
             return;
         }
         // 智慧树的登录态在 polymas 业务页的请求头里，学习通的会话 cookie 在 stat2-ans 上，

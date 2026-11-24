@@ -85,6 +85,71 @@ public final class Updater {
         return i;
     }
 
+    /** 检查结果：区分「真的没有新版本」和「根本没连上」。 */
+    public static final class Result {
+        public final Info info;
+        /** 至少有一个清单地址连上了（返回了能解析的 JSON）。 */
+        public final boolean reachable;
+
+        Result(Info info, boolean reachable) {
+            this.info = info;
+            this.reachable = reachable;
+        }
+    }
+
+    /** 同 {@link #check(Context, String)}，但会告诉调用方到底是「没新版」还是「网络不通」。 */
+    public static Result checkDetailed(Context ctx, String manifestUrl) {
+        boolean reachable = false;
+        String[] sources = {API_MANIFEST, manifestUrl};
+        for (int k = 0; k < sources.length; k++) {
+            Attempt a = attempt(ctx, sources[k], k == 0);
+            if (a.reachable) reachable = true;
+            if (a.info != null) return new Result(a.info, true);
+        }
+        return new Result(null, reachable);
+    }
+
+    private static final class Attempt {
+        Info info;
+        boolean reachable;
+    }
+
+    private static Attempt attempt(Context ctx, String url, boolean githubApi) {
+        Attempt a = new Attempt();
+        if (url == null || url.isEmpty()) return a;
+        HttpURLConnection c = null;
+        try {
+            c = (HttpURLConnection) new URL(url).openConnection();
+            c.setConnectTimeout(8000);
+            c.setReadTimeout(8000);
+            c.setRequestProperty("User-Agent", "Android");
+            c.setRequestProperty("Cache-Control", "no-cache");
+            if (githubApi) {
+                c.setRequestProperty("Accept", "application/vnd.github.raw");
+                c.setRequestProperty("X-GitHub-Api-Version", "2022-11-28");
+            }
+            if (c.getResponseCode() / 100 != 2) return a;
+            String body = read(c.getInputStream());
+            JSONObject o = new JSONObject(body);
+            a.reachable = true;
+            Info i = new Info();
+            i.code = o.optInt("versionCode", 0);
+            i.name = o.optString("versionName", "");
+            i.url = o.optString("url", "");
+            i.notes = o.optString("notes", "");
+            i.sha256 = o.optString("sha256", "");
+            i.size = o.optLong("size", 0);
+            if (i.code <= 0 || i.url.isEmpty()) return a;
+            int mine = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode;
+            if (i.code > mine) a.info = i;
+            return a;
+        } catch (Throwable t) {
+            return a;
+        } finally {
+            if (c != null) c.disconnect();
+        }
+    }
+
     /** 拉一个清单地址并解析；没有新版本或拉不到时返回 null。 */
     private static Info fetch(Context ctx, String url, boolean githubApi) {
         if (url == null || url.isEmpty()) return null;

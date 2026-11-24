@@ -28,12 +28,18 @@ public final class SyncAll {
     }
 
     public static Report run(Context ctx) {
+        return run(ctx, null);
+    }
+
+    /** 带进度的同步：界面传一个监听进来就能画进度条，后台同步传 null。 */
+    public static Report run(Context ctx, SyncProgress.Listener listener) {
         Report r = new Report();
+        SyncProgress prog = new SyncProgress(listener);
         StringBuilder log = new StringBuilder();
         try {
-            r.anyRan |= syncYkt(ctx, log, r);
-            r.anyRan |= syncZhs(ctx, log, r);
-            r.anyRan |= syncCx(ctx, log, r);
+            r.anyRan |= syncYkt(ctx, log, r, prog);
+            r.anyRan |= syncZhs(ctx, log, r, prog);
+            r.anyRan |= syncCx(ctx, log, r, prog);
         } catch (Throwable t) {
             log.append("ERROR ").append(t).append('\n');
         } finally {
@@ -47,11 +53,11 @@ public final class SyncAll {
         return r;
     }
 
-    private static boolean syncYkt(Context ctx, StringBuilder log, Report r) {
+    private static boolean syncYkt(Context ctx, StringBuilder log, Report r, SyncProgress prog) {
         if (!CourseStore.anySelected(ctx, Sources.YKT)) return false;
         boolean auth = YktClient.loggedIn();
         log.append("== yuketang ==").append(auth ? "" : " (cookie missing, trying anyway)").append('\n');
-        int n = YktSync.syncSelected(ctx, log);
+        int n = YktSync.syncSelected(ctx, log, prog);
         r.kept += n;
         r.perPlatform.put(Sources.YKT, n);
         if (!auth) {
@@ -61,11 +67,11 @@ public final class SyncAll {
         return true;
     }
 
-    private static boolean syncZhs(Context ctx, StringBuilder log, Report r) {
+    private static boolean syncZhs(Context ctx, StringBuilder log, Report r, SyncProgress prog) {
         if (!CourseStore.anySelected(ctx, Sources.ZHS)) return false;
         boolean auth = ZhsClient.loggedIn();
         log.append("== zhihuishu ==").append(auth ? "" : " (no token/cookie, trying anyway)").append('\n');
-        int n = ZhsSync.syncSelected(ctx, log);
+        int n = ZhsSync.syncSelected(ctx, log, prog);
         r.kept += n;
         r.perPlatform.put(Sources.ZHS, n);
         if (!auth) {
@@ -75,11 +81,11 @@ public final class SyncAll {
         return true;
     }
 
-    private static boolean syncCx(Context ctx, StringBuilder log, Report r) {
+    private static boolean syncCx(Context ctx, StringBuilder log, Report r, SyncProgress prog) {
         if (!CourseStore.anySelected(ctx, Sources.CX)) return false;
         boolean auth = CxClient.loggedIn();
         log.append("== chaoxing ==").append(auth ? "" : " (cookie missing, trying anyway)").append('\n');
-        int n = CxSync.syncSelected(ctx, log);
+        int n = CxSync.syncSelected(ctx, log, prog);
         r.kept += n;
         r.perPlatform.put(Sources.CX, n);
         if (!auth) {

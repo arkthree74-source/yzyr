@@ -151,7 +151,13 @@ public class CoursesActivity extends AppCompatActivity implements CourseAdapter.
             boolean needLogin = false;
             try {
                 List<Course> fresh;
-                if (Sources.ZHS.equals(source)) {
+                if (Sources.KTP.equals(source)) {
+                    // 课堂派的课程/作业接口还在摸底，先不动它的课程列表
+                    fresh = new java.util.ArrayList<>();
+                    runOnUiThread(() -> hint.setText(
+                            "课堂派：先在网页里登录，然后回上一页点这张卡片的「登录」旁边的提示，"
+                                    + "让 App 把接口数据抓下来（正在接入中）。"));
+                } else if (Sources.ZHS.equals(source)) {
                     fresh = com.dsh.toolbox.data.ZhsSync.courses(this);
                 } else if (Sources.CX.equals(source)) {
                     fresh = com.dsh.toolbox.data.CxSync.courses(this);

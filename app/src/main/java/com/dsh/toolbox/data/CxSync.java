@@ -72,6 +72,11 @@ public final class CxSync {
 
     /** Pull the near-task list, keep what belongs to a monitored course, and drop overdue rows. */
     public static int syncSelected(Context ctx, StringBuilder log) {
+        return syncSelected(ctx, log, null);
+    }
+
+    /** 同 {@link #syncSelected(Context, StringBuilder)}，额外汇报进度。 */
+    public static int syncSelected(Context ctx, StringBuilder log, SyncProgress prog) {
         CxClient.init(ctx);
         List<Course> picked = CourseStore.selected(ctx, Sources.CX);
         Set<String> keep = new HashSet<>();
@@ -82,6 +87,10 @@ public final class CxSync {
             Store.get(ctx).setLastSync(Sources.CX, System.currentTimeMillis());
             return 0;
         }
+        if (prog != null) {
+            prog.plan(1);
+            prog.note("超星学习通 · 正在取临期任务");
+        }
 
         String body;
         try {
@@ -89,6 +98,8 @@ public final class CxSync {
         } catch (Throwable t) {
             if (log != null) log.append("cx FAILED ").append(t).append('\n');
             return 0;
+        } finally {
+            if (prog != null) prog.step("超星学习通 · 解析");
         }
         if (body == null || body.isEmpty()) return 0;
         write(ctx, "cx_plan.json", body);

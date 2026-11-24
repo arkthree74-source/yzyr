@@ -34,7 +34,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="12dp"
                 android:lineSpacingExtra="3dp"
-                android:text="三平台各登录一次，之后勾选要监控的课程，App 每 6 小时自动帮你查一次作业。账号密码只保存在本机，不会上传到任何服务器。"
+                android:text="四个平台各登录一次，之后勾选要监控的课程，App 每 6 小时自动帮你查一次作业。账号密码只保存在本机，不会上传到任何服务器。"
                 android:textColor="@color/text2"
                 android:textSize="12sp" />
 
@@ -48,6 +48,10 @@
 
             <include
                 android:id="@+id/cardCx"
+                layout="@layout/item_platform" />
+
+            <include
+                android:id="@+id/cardKtp"
                 layout="@layout/item_platform" />
 
             <TextView
