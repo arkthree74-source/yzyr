@@ -99,6 +99,11 @@ public final class ZhsClient {
         return post("/student-course/student/index/queryStudentCourse", "{}");
     }
 
+    /** 带分页参数的课程列表：有的账号默认只返回一页，需要用大 pageSize 再拉一次。 */
+    public static String courseList(String body) {
+        return post("/student-course/student/index/queryStudentCourse", body);
+    }
+
     public static String todoList(int page, int size) {
         return get("/student-course/stu/todo/findNoFinishTaskTotal?keyword=&type=&pageNum="
                 + page + "&pageSize=" + size);

@@ -26,17 +26,26 @@ public final class ZhsSync {
 
     public static List<Course> courses(Context ctx) throws Exception {
         ZhsClient.init(ctx);
+        // 这个接口的分页行为各校不同：有的默认只给一页（10~20 门），
+        // 所以先按默认拿一次，再按 pageNum/pageSize 逐页补，最后按 courseId 去重。
+        List<JSONObject> items = new ArrayList<>();
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        StringBuilder trace = new StringBuilder();
+
         String body = ZhsClient.courseList();
-        if (body == null) throw new IllegalStateException("empty response");
-        JSONObject root = new JSONObject(body);
-        JSONObject data = root.optJSONObject("data");
+        int first = harvest(body, items, ids, trace, "default");
+        for (int page = 1; page <= 5 && first >= 10; page++) {
+            String pageBody = ZhsClient.courseList("{\"pageNum\":" + page + ",\"pageSize\":100}");
+            int before = items.size();
+            int got = harvest(pageBody, items, ids, trace, "page" + page);
+            if (got == 0 || items.size() == before) break;  // 这一页没有新东西，收工
+        }
+        if (ctx != null) {
+            YktSync.write(ctx, "zhs_courses.json", trace + "\nunique=" + items.size() + "\n\n" + body);
+        }
+
         List<Course> out = new ArrayList<>();
-        if (data == null) return out;
-        JSONArray arr = data.optJSONArray("list");
-        if (arr == null) return out;
-        for (int i = 0; i < arr.length(); i++) {
-            JSONObject o = arr.optJSONObject(i);
-            if (o == null) continue;
+        for (JSONObject o : items) {
             Course c = new Course();
             c.source = Sources.ZHS;
             c.courseId = o.optString("courseId").hashCode();
@@ -52,6 +61,46 @@ public final class ZhsSync {
             out.add(c);
         }
         return out;
+    }
+
+    /** 把一次响应里的课程塞进 items（按 courseId 去重），返回本次新增条数。 */
+    private static int harvest(String body, List<JSONObject> items, java.util.Set<String> ids,
+                              StringBuilder trace, String label) {
+        if (body == null) {
+            trace.append(label).append(": null\n");
+            return 0;
+        }
+        int added = 0;
+        try {
+            JSONObject root = new JSONObject(body);
+            JSONObject data = root.optJSONObject("data");
+            JSONArray arr = data == null ? null : data.optJSONArray("list");
+            if (arr == null) {
+                trace.append(label).append(": code=").append(root.optInt("code"))
+                        .append(" msg=").append(root.optString("msg")).append('\n');
+                return 0;
+            }
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject o = arr.optJSONObject(i);
+                if (o == null) continue;
+                String id = o.optString("courseId");
+                String name = o.optString("courseName");
+                if (name.isEmpty()) continue;
+                if (!ids.add(id.isEmpty() ? "n:" + name : id)) continue;
+                items.add(o);
+                added++;
+            }
+            trace.append(label).append(": list=").append(arr.length())
+                    .append(" added=").append(added);
+            if (data != null) {
+                trace.append(" total=").append(data.optInt("totalCount", -1))
+                        .append(" pages=").append(data.optInt("totalPage", -1));
+            }
+            trace.append('\n');
+        } catch (Throwable t) {
+            trace.append(label).append(": parse failed ").append(t).append('\n');
+        }
+        return added;
     }
 
     static String termOf(String termName) {

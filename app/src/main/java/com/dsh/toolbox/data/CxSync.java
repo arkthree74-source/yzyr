@@ -80,7 +80,11 @@ public final class CxSync {
         CxClient.init(ctx);
         List<Course> picked = CourseStore.selected(ctx, Sources.CX);
         Set<String> keep = new HashSet<>();
-        for (Course c : picked) keep.add(c.name);
+        Set<Long> keepIds = new HashSet<>();
+        for (Course c : picked) {
+            keep.add(c.name);
+            if (c.courseId > 0) keepIds.add(c.courseId);
+        }
         if (log != null) log.append("cx selected=").append(picked.size()).append('\n');
         if (keep.isEmpty()) {
             Store.get(ctx).purgeUntracked(Sources.CX, keep);
@@ -117,21 +121,47 @@ public final class CxSync {
                         .append(" msg=").append(root.optString("msg")).append('\n');
                 return 0;
             }
-            JSONArray tasks = data.optJSONArray("allNearTasks");
-            if (tasks != null) {
+            JSONArray tasks = new JSONArray();
+            JSONArray flat = data.optJSONArray("allNearTasks");
+            if (flat != null) for (int i = 0; i < flat.length(); i++) tasks.put(flat.opt(i));
+            // 有些账号 allNearTasks 是空的，但每门课的 nearTaskList 有数据，两边都读
+            for (String key : new String[]{"courseList", "otherCourseList"}) {
+                JSONArray cs = data.optJSONArray(key);
+                if (cs == null) continue;
+                for (int i = 0; i < cs.length(); i++) {
+                    JSONObject c = cs.optJSONObject(i);
+                    if (c == null) continue;
+                    JSONArray nt = c.optJSONArray("nearTaskList");
+                    if (nt == null) continue;
+                    for (int j = 0; j < nt.length(); j++) tasks.put(nt.opt(j));
+                }
+            }
+            Set<String> seen = new HashSet<>();
+            int undated = 0;
+            {
                 for (int i = 0; i < tasks.length(); i++) {
                     JSONObject o = tasks.optJSONObject(i);
                     if (o == null) continue;
                     String course = o.optString("courseName");
-                    if (!keep.contains(course)) continue;
+                    long cid = o.optLong("courseId", 0);
+                    boolean mine = keep.contains(course) || keepIds.contains(cid)
+                            || (course != null && !course.isEmpty()
+                                && ZhsSync.matchCourse(course, keep) != null);
+                    if (!mine) continue;
                     raw++;
                     String title = tidy(o.optString("name"));
                     if (title.isEmpty()) continue;
                     long due = o.optLong("endTime", 0);
-                    if (due <= 0 || due < now) continue;
-                    Homework h = new Homework();
+                    if (due <= 0) {
+                        undated++;
+                        continue;
+                    }
+                    if (due < now) continue;
                     String id = o.optString("id");
-                    h.id = "cx:" + (id.isEmpty() ? (course + "|" + title).hashCode() : id);
+                    String key = id.isEmpty() ? (course + "|" + title) : id;
+                    if (!seen.add(key)) continue;
+                    Homework h = new Homework();
+                    h.id = "cx:" + key;
                     h.source = Sources.CX;
                     h.course = course;
                     h.title = title;
@@ -142,6 +172,8 @@ public final class CxSync {
                     fresh.add(h);
                 }
             }
+            if (log != null) log.append("cx tasks=").append(tasks.length())
+                    .append(" undated=").append(undated).append('\n');
         } catch (Exception e) {
             if (log != null) log.append("cx parse FAILED ").append(e).append('\n');
             return 0;
