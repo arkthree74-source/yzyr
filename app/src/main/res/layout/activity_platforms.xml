@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/bg"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:titleTextAppearance="@style/TxtToolbarTitle"
+        app:title="选取课程" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
+                android:lineSpacingExtra="3dp"
+                android:text="三平台各登录一次，之后勾选要监控的课程，App 每 6 小时自动帮你查一次作业。账号密码只保存在本机，不会上传到任何服务器。"
+                android:textColor="@color/text2"
+                android:textSize="12sp" />
+
+            <include
+                android:id="@+id/cardYkt"
+                layout="@layout/item_platform" />
+
+            <include
+                android:id="@+id/cardZhs"
+                layout="@layout/item_platform" />
+
+            <include
+                android:id="@+id/cardCx"
+                layout="@layout/item_platform" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="24dp"
+                android:lineSpacingExtra="4dp"
+                android:text="小提示\n· 点卡片＝选择要监控的课程（没作业的课可以不选）。\n· 点右侧「登录」＝打开官方网页登录一次，之后一直自动同步。\n· 雨课堂支持微信扫码或手机号验证码登录。\n· 作业每 6 小时自动同步，也可以在首页点右上角「同步」立即刷新。"
+                android:textColor="@color/text3"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

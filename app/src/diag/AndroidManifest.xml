@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Debug-only entry point so adb can drive the WebView without typing
+         (the device's IME mangles adb text input). Never part of release. -->
+    <application>
+        <activity
+            android:name=".WebActivity"
+            android:exported="true"
+            tools:replace="android:exported">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="dshopen" />
+            </intent-filter>
+        </activity>
+
+        <!-- Debug-only: lets adb fire the sync alarm path without waiting 6 hours. -->
+        <receiver
+            android:name=".data.SyncAlarmReceiver"
+            android:exported="true"
+            tools:replace="android:exported">
+            <intent-filter>
+                <action android:name="com.dsh.toolbox.action.SYNC_ALARM" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">油专人拯救计划</string>
+    <string name="tab_home">作业</string>
+    <string name="tab_platforms">平台</string>
+    <string name="empty_title">还没有作业</string>
+    <string name="empty_desc">先去「选取课程」登录平台并勾选要盯的课，\n之后每 6 小时自动帮你查一次。</string>
+    <string name="go_platforms">去选取课程</string>
+    <string name="add_homework">添加作业</string>
+    <string name="extract">提取本页作业</string>
+    <string name="extract_hint">登录后进入「作业 / 学习任务」页面，再点提取</string>
+</resources>
