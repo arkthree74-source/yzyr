@@ -1,8 +1,8 @@
 {
-    "notes":  "同步时能看到进度：现在抓哪门课、抓到第几门、等了多久；不想等可以「放到后台」。检查更新失败时会说清是网络问题还是已经最新。新增「课堂派」平台入口。",
-    "versionName":  "2.6",
-    "sha256":  "8e1437dbc59b814f1c7f0b8cc43a01fb18b49d4363f88405dc4e400b9d4704c2",
-    "versionCode":  18,
-    "url":  "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@754c4cb1b9a570090483251f0e7dd70d5b1a58e0/releases/yzyr-v2.6.apk",
-    "size":  5210358
+  "versionCode": 19,
+  "versionName": "2.7",
+  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@2d32a1850f4761386f51c1ebc7a311743acd3cb9/releases/yzyr-v2.7.apk",
+  "size": 5213566,
+  "sha256": "9fc167a55c6bd58159e7e388c45d2ebf2d81ed8c93dcc08ea8029b87693684c4",
+  "notes": "修智慧树「有作业却抓不到」：改成按页抓取，课程名也做了容错\n同步记录会写明为什么是 0 条，比如「有 3 门课的任务不在监控范围」\n设置里新增「同步诊断」，抓不到时截图发我就能定位"
 }
