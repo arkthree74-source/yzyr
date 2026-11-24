@@ -21,8 +21,8 @@ android {
         applicationId = "com.dsh.toolbox"
         minSdk = 24
         targetSdk = 34
-        versionCode = 15
-        versionName = "2.3"
+        versionCode = 17
+        versionName = "2.5"
     }
 
     signingConfigs {

@@ -87,6 +87,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         section("关于");
         row("检查更新", "当前 " + versionName(), v -> UpdateFlow.check(this, false));
+        row("更新记录", "每个版本改了什么", v -> com.dsh.toolbox.ui.Changelog.show(this));
         row("这个 App 干了什么", "不保存账号密码，只在本机存登录状态", v -> about());
 
         TextView foot = new TextView(this);

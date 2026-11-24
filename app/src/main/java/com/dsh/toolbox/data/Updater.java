@@ -41,8 +41,14 @@ import java.security.MessageDigest;
  */
 public final class Updater {
 
-    /** 更新清单地址。换成你自己的之后，老用户就能自动发现新版本。 */
+    /** 更新清单地址（CDN，可能缓存 12 小时才更新，所以只当兜底）。 */
     public static final String DEFAULT_MANIFEST = "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/update.json";
+
+    /**
+     * 直连 GitHub API 读同一份清单：不走 CDN 缓存，始终是最新的。
+     * 先问这个，失败（限流、被墙）再退回 {@link #DEFAULT_MANIFEST}。
+     */
+    public static final String API_MANIFEST = "https://api.github.com/repos/arkthree74-source/yzyr/contents/update.json";
 
     public interface Progress {
         void onProgress(long done, long total);
@@ -69,16 +75,31 @@ public final class Updater {
         Store.get(ctx).prefs().edit().putString("update_url", url == null ? "" : url).apply();
     }
 
-    /** 拉清单；没有新版本或拉不到时返回 null。 */
+    /**
+     * 拉清单；没有新版本或拉不到时返回 null。
+     * 先直连 GitHub API（永远最新），失败再退回 CDN（可能慢 12 小时）。
+     */
     public static Info check(Context ctx, String manifestUrl) {
-        if (manifestUrl == null || manifestUrl.isEmpty()) return null;
+        Info i = fetch(ctx, API_MANIFEST, true);
+        if (i == null) i = fetch(ctx, manifestUrl, false);
+        return i;
+    }
+
+    /** 拉一个清单地址并解析；没有新版本或拉不到时返回 null。 */
+    private static Info fetch(Context ctx, String url, boolean githubApi) {
+        if (url == null || url.isEmpty()) return null;
         HttpURLConnection c = null;
         try {
-            c = (HttpURLConnection) new URL(manifestUrl).openConnection();
+            c = (HttpURLConnection) new URL(url).openConnection();
             c.setConnectTimeout(8000);
             c.setReadTimeout(8000);
             c.setRequestProperty("User-Agent", "Android");
             c.setRequestProperty("Cache-Control", "no-cache");
+            if (githubApi) {
+                // contents API 加这个头就直接返回文件原文，而不是 base64 JSON
+                c.setRequestProperty("Accept", "application/vnd.github.raw");
+                c.setRequestProperty("X-GitHub-Api-Version", "2022-11-28");
+            }
             if (c.getResponseCode() / 100 != 2) return null;
             String body = read(c.getInputStream());
             JSONObject o = new JSONObject(body);

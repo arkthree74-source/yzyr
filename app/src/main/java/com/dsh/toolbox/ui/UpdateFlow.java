@@ -2,10 +2,12 @@ package com.dsh.toolbox.ui;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.dsh.toolbox.data.Store;
 import com.dsh.toolbox.data.Updater;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -20,7 +22,36 @@ import java.util.Locale;
  */
 public final class UpdateFlow {
 
+    /** 打开 App 时最多每隔这么久联网查一次（省流量、也避免每次开屏都弹）。 */
+    private static final long LAUNCH_CHECK_INTERVAL = 6L * 3600L * 1000L;
+    /** 用户点了「以后再说」之后，同一个版本这么多小时内不再打扰。 */
+    private static final long SKIP_QUIET = 24L * 3600L * 1000L;
+
     private UpdateFlow() {
+    }
+
+    /**
+     * 每次打开 App 时调用：隔 6 小时以上才真正联网查，发现更大版本就弹「发现新版本」。
+     * 同一个版本被「以后再说」过，24 小时内不再弹。
+     */
+    public static void checkOnLaunch(final Activity act) {
+        if (act.isFinishing() || act.isDestroyed()) return;
+        final String url = Updater.manifest(act);
+        if (url.isEmpty()) return;
+        final SharedPreferences p = Store.get(act).prefs();
+        final long now = System.currentTimeMillis();
+        if (now - p.getLong("update_check_at", 0) < LAUNCH_CHECK_INTERVAL) return;
+        p.edit().putLong("update_check_at", now).apply();
+        new Thread(() -> {
+            final Updater.Info info = Updater.check(act, url);
+            act.runOnUiThread(() -> {
+                if (act.isFinishing() || act.isDestroyed() || info == null) return;
+                int skipCode = p.getInt("update_skip_code", 0);
+                long skipAt = p.getLong("update_skip_at", 0);
+                if (info.code <= skipCode && System.currentTimeMillis() - skipAt < SKIP_QUIET) return;
+                show(act, info);
+            });
+        }).start();
     }
 
     public static void check(final Activity act, final boolean silent) {
@@ -61,7 +92,9 @@ public final class UpdateFlow {
 
     public static void show(final Activity act, final Updater.Info info) {
         StringBuilder msg = new StringBuilder();
-        msg.append(info.notes == null || info.notes.isEmpty() ? "有新版本可以更新。" : info.notes);
+        String notes = info.notes == null || info.notes.isEmpty()
+                ? Changelog.latestNotes() : info.notes;
+        msg.append(notes == null || notes.isEmpty() ? "有新版本可以更新。" : notes);
         if (info.size > 0) {
             msg.append("\n\n大小约 ")
                     .append(String.format(Locale.getDefault(), "%.1f", info.size / 1048576.0))
@@ -71,8 +104,14 @@ public final class UpdateFlow {
         new MaterialAlertDialogBuilder(act)
                 .setTitle("发现新版本 " + info.name)
                 .setMessage(msg.toString())
-                .setPositiveButton("立即更新", (d, w) -> download(act, info))
-                .setNegativeButton("以后再说", null)
+                .setPositiveButton("立即更新", (d, w) -> {
+                    Store.get(act).prefs().edit()
+                            .remove("update_skip_code").remove("update_skip_at").apply();
+                    download(act, info);
+                })
+                .setNegativeButton("以后再说", (d, w) -> Store.get(act).prefs().edit()
+                        .putInt("update_skip_code", info.code)
+                        .putLong("update_skip_at", System.currentTimeMillis()).apply())
                 .show();
     }
 

@@ -79,11 +79,10 @@ public class MainActivity extends AppCompatActivity implements HomeworkAdapter.L
         com.dsh.toolbox.data.SyncScheduler.ensureScheduled(this);
         com.dsh.toolbox.data.SyncScheduler.catchUp(this);
         requestNotificationPermission();
-        // 每天最多静默查一次更新；有新版本才弹窗
-        long lastCheck = store.prefs().getLong("update_check_at", 0);
-        if (System.currentTimeMillis() - lastCheck > 24L * 3600L * 1000L) {
-            store.prefs().edit().putLong("update_check_at", System.currentTimeMillis()).apply();
-            getWindow().getDecorView().postDelayed(() -> checkUpdate(true), 3000);
+        // 打开 App 时顺手查一次更新（6 小时内不重复查）；有新版本弹「发现新版本」
+        if (!com.dsh.toolbox.ui.GuideFlow.active(this)) {
+            getWindow().getDecorView().postDelayed(
+                    () -> com.dsh.toolbox.ui.UpdateFlow.checkOnLaunch(this), 2500);
         }
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
