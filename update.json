@@ -1,8 +1,8 @@
 {
-  "versionCode": 20,
-  "versionName": "2.8",
-  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@45834f712fef65f0d77897c42bcf95ee87bc88d2/releases/yzyr-v2.8.apk",
-  "size": 5215546,
-  "sha256": "f1deaffd1ee990bf60c247041d5e057e5ac623713a09ee11a4a88bde15117793",
-  "notes": "智慧树课程列表改成按页拉全，之前可能只显示第一页的课\n学习通把每门课的临期任务也合并进来，减少漏抓\n同步诊断里能看到这次抓到多少门课"
+  "versionCode": 23,
+  "versionName": "3.1",
+  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@46c8bc9755f2f8ac89d727720ea06cc39643c06c/releases/yzyr-v3.1.apk",
+  "size": 5225895,
+  "sha256": "3968bec7cc6b3461a7c18f4761937a6b23f8e39ccfc8a9a4c2ca34b45e51c65f",
+  "notes": "3.1：新增网页版——手机或电脑浏览器打开 http://手机IP:8765 就能看作业和课表，可「添加到主屏幕」当 App 用。"
 }
