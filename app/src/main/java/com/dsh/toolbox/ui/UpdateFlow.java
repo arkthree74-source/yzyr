@@ -22,8 +22,6 @@ import java.util.Locale;
  */
 public final class UpdateFlow {
 
-    /** 打开 App 时最多每隔这么久联网查一次（省流量、也避免每次开屏都弹）。 */
-    private static final long LAUNCH_CHECK_INTERVAL = 6L * 3600L * 1000L;
     /** 用户点了「以后再说」之后，同一个版本这么多小时内不再打扰。 */
     private static final long SKIP_QUIET = 24L * 3600L * 1000L;
 
@@ -31,17 +29,15 @@ public final class UpdateFlow {
     }
 
     /**
-     * 每次打开 App 时调用：隔 6 小时以上才真正联网查，发现更大版本就弹「发现新版本」。
+     * 每次打开 App 时调用：联网查一次，发现更大版本就弹「发现新版本」。
      * 同一个版本被「以后再说」过，24 小时内不再弹。
+     * 只取一小段 JSON，几十 KB 以内，不用为流量担心。
      */
     public static void checkOnLaunch(final Activity act) {
         if (act.isFinishing() || act.isDestroyed()) return;
         final String url = Updater.manifest(act);
         if (url.isEmpty()) return;
         final SharedPreferences p = Store.get(act).prefs();
-        final long now = System.currentTimeMillis();
-        if (now - p.getLong("update_check_at", 0) < LAUNCH_CHECK_INTERVAL) return;
-        p.edit().putLong("update_check_at", now).apply();
         new Thread(() -> {
             final Updater.Info info = Updater.check(act, url);
             act.runOnUiThread(() -> {
