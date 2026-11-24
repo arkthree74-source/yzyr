@@ -96,16 +96,16 @@ app/src/main/java/com/dsh/toolbox/
 
 ```json
 {
-  "versionCode": 14,
-  "versionName": "2.2",
-  "url": "https://cdn.jsdelivr.net/gh/<用户名>/<仓库名>@main/releases/yzyr-v2.2.apk",
-  "size": 5201230,
+  "versionCode": 15,
+  "versionName": "2.3",
+  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/releases/yzyr-v2.3.apk",
+  "size": 5201266,
   "sha256": "……",
   "notes": "这次改了什么"
 }
 ```
 
-App 里的 `Updater.DEFAULT_MANIFEST` 指向这个清单（走 jsDelivr CDN，国内可直连）。检查到 `versionCode` 比本机大就提示下载；下载后校验 **sha256** 与**签名证书**，两者都对才拉起系统安装器，所以别人即使改了 APK 也装不上。
+App 里的 `Updater.DEFAULT_MANIFEST` 指向这个清单（走 jsDelivr CDN，国内可直连）：`https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/update.json`。检查到 `versionCode` 比本机大就提示下载；下载后校验 **sha256** 与**签名证书**，两者都对才拉起系统安装器，所以别人即使改了 APK 也装不上。
 
 发新版只要三步：改 `versionCode`/`versionName` → 编译 → 把新 APK 放进 `releases/`、更新 `update.json`。
 

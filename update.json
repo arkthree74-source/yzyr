@@ -1,8 +1,8 @@
 {
-  "versionCode": 14,
-  "versionName": "2.2",
-  "url": "https://cdn.jsdelivr.net/gh/GITHUB_USER/REPO@main/releases/yzyr-v2.2.apk",
-  "size": 5201230,
-  "sha256": "8f46f59ad01153d98e1d97cdfa411672062727656e91ded2bd96756705d1f15e",
-  "notes": "新增：底部「设置」页；同步频率可选（1 小时 ~ 每周，或关闭自动同步）；新增「同步记录」；新手引导带你去开后台保活；检查更新移到设置页。"
+  "versionCode": 15,
+  "versionName": "2.3",
+  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/releases/yzyr-v2.3.apk",
+  "size": 5201266,
+  "sha256": "cd3344cfcdccbdbda0731f7e8d0bfc533379f9c200c4f2e808a16dd2d3811359",
+  "notes": "v2.3：应用内更新正式启用（更新清单托管在 GitHub，走 jsDelivr CDN）；设置页、可选同步频率、同步记录、后台保活引导沿用 v2.2。"
 }

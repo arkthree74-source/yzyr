@@ -42,7 +42,7 @@ import java.security.MessageDigest;
 public final class Updater {
 
     /** 更新清单地址。换成你自己的之后，老用户就能自动发现新版本。 */
-    public static final String DEFAULT_MANIFEST = "";
+    public static final String DEFAULT_MANIFEST = "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/update.json";
 
     public interface Progress {
         void onProgress(long done, long total);
