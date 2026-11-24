@@ -141,8 +141,20 @@ public final class ShareServer {
                 body = "{\"app\":\"yzyr\",\"ok\":true}";
             } else if (path.startsWith("/data")) {
                 body = payload(ctx).toString();
+            } else if (path.startsWith("/sync")) {
+                final Context app = ctx;
+                new Thread(() -> {
+                    try {
+                        SyncAll.run(app);
+                    } catch (Throwable ignored) {
+                    }
+                }, "web-sync").start();
+                body = "{\"ok\":true,\"msg\":\"sync started\"}";
+            } else if (path.equals("/") || path.startsWith("/?") || path.startsWith("/index")) {
+                type = "text/html; charset=utf-8";
+                body = page(ctx);
             } else {
-                body = "{\"ok\":false,\"msg\":\"use /data or /ping\"}";
+                body = "{\"ok\":false,\"msg\":\"unknown\"}";
             }
             byte[] bytes = body.getBytes("UTF-8");
             OutputStream out = s.getOutputStream();
@@ -187,12 +199,30 @@ public final class ShareServer {
                 times.put(String.valueOf(e.getKey()), e.getValue());
             }
             root.put("sectionTimes", times);
+            long week1 = TimetableStore.start(ctx);
+            root.put("week1", week1);
+            root.put("nowWeek", TimetableStore.weekOf(System.currentTimeMillis(), week1));
             root.put("app", "yzyr");
             root.put("version", 1);
         } catch (Exception e) {
             Log.w(TAG, "payload", e);
         }
         return root;
+    }
+
+    /** 读 assets/web.html，就是浏览器打开的那个页面。 */
+    private static String page(Context ctx) {
+        try {
+            java.io.InputStream in = ctx.getAssets().open("web.html");
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            in.close();
+            return new String(out.toByteArray(), "UTF-8");
+        } catch (Exception e) {
+            return "<h1>页面没找到</h1>";
+        }
     }
 
     private static SharedPreferences prefs(Context ctx) {

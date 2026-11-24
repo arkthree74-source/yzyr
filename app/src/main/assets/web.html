@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2F6FED">
+<title>油专人拯救计划</title>
+<style>
+:root{--brand:#2F6FED;--brand-soft:#E8EFFF;--bg:#F5F6FA;--card:#fff;--text:#111827;--text2:#6B7280;--text3:#9CA3AF;--line:#E9EBF0;--danger:#E5484D;--warn:#F59E0B;--ok:#10B981}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;padding-bottom:72px}
+.wrap{max-width:760px;margin:0 auto;padding:0 12px}
+header{position:sticky;top:0;z-index:20;background:rgba(245,246,250,.92);backdrop-filter:blur(10px);padding:10px 0 8px}
+.top{display:flex;align-items:center;gap:8px}
+.logo{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,#4A86F7,#1E4FD6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+h1{font-size:17px;margin:0;flex:1;font-weight:700}
+.btn{border:0;background:var(--brand);color:#fff;border-radius:11px;padding:9px 14px;font-size:14px;font-weight:600}
+.btn.ghost{background:#fff;color:var(--text2);border:1px solid var(--line)}
+.summary{margin:6px 0 10px;border-radius:20px;padding:16px 18px;color:#fff;background:linear-gradient(135deg,#4A86F7,#2F6FED 55%,#1E4FD6);position:relative;overflow:hidden}
+.summary .big{font-size:40px;font-weight:800;line-height:1.05}
+.summary .cap{font-size:12px;opacity:.85;margin-top:2px}
+.summary .row{display:flex;gap:18px;margin-top:12px}
+.summary .row div{font-size:12px;opacity:.9}
+.summary .row b{display:block;font-size:18px;font-weight:700;opacity:1}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--text2);border-radius:999px;padding:6px 12px;font-size:13px}
+.chip.on{border-color:#C9DAFF;background:var(--brand-soft);color:#1F4FBF;font-weight:600}
+.filters{display:flex;gap:8px;margin-bottom:8px}
+select,input{flex:1;border:1px solid var(--line);background:#fff;border-radius:11px;padding:9px 10px;font-size:14px;color:var(--text);min-width:0}
+.section{font-size:12px;color:var(--text2);font-weight:600;margin:14px 2px 8px}
+.card{background:var(--card);border-radius:16px;padding:12px 13px;margin-bottom:8px;display:flex;gap:11px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.stripe{width:4px;border-radius:3px;flex:0 0 4px;background:var(--brand)}
+.main{flex:1;min-width:0}
+.t{font-weight:600;font-size:15px;margin-bottom:4px;word-break:break-word}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--text3)}
+.pill{padding:2px 7px;border-radius:999px;font-size:11px;font-weight:600}
+.due{font-variant-numeric:tabular-nums}
+.tag{color:#fff;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.empty{text-align:center;color:var(--text3);padding:48px 0;font-size:14px}
+nav{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);display:flex;padding:6px 0 calc(6px + env(safe-area-inset-bottom));backdrop-filter:blur(10px)}
+nav button{flex:1;border:0;background:none;color:var(--text3);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px}
+nav button.on{color:var(--brand);font-weight:700}
+nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.weekbar{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px;margin-bottom:10px}
+.weekbar .mid{flex:1;text-align:center;font-weight:700;font-size:14px}
+.weekbar button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 12px;color:var(--text2)}
+.grid{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;background:#fff;border-radius:14px;overflow:hidden}
+.grid th{font-weight:600;color:var(--text2);padding:6px 2px;border-bottom:1px solid var(--line);font-size:11px}
+.grid th.today{color:var(--brand)}
+.grid td{border-bottom:1px solid #F1F3F7;padding:2px;vertical-align:top;height:52px}
+.grid td.today{background:#F2F7FF}
+.grid .slot{color:var(--text3);font-size:10px;text-align:center}
+.course{border-radius:7px;color:#fff;padding:4px 5px;font-size:10.5px;line-height:1.25;height:100%;overflow:hidden}
+.course b{display:block;font-size:11px}
+.loading{color:var(--text3);text-align:center;padding:40px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <div class="logo">油</div>
+      <h1>油专人拯救计划</h1>
+      <button class="btn ghost" id="syncBtn">同步</button>
+    </div>
+  </header>
+
+  <div id="page-home">
+    <div class="summary">
+      <div class="big" id="statTotal">–</div>
+      <div class="cap">还没做完的作业</div>
+      <div class="row">
+        <div><b id="statToday">–</b>今天截止</div>
+        <div><b id="statWeek">–</b>七天内</div>
+        <div><b id="statOver">–</b>已逾期</div>
+      </div>
+    </div>
+    <div class="chips" id="platformChips"></div>
+    <div class="filters">
+      <select id="courseSel"><option value="">全部课程</option></select>
+      <select id="dueSel">
+        <option value="0">全部时间</option>
+        <option value="1">今天</option>
+        <option value="2">七天以内</option>
+        <option value="3">已逾期</option>
+      </select>
+    </div>
+    <input id="search" placeholder="搜索作业标题">
+    <div id="list"><div class="loading">正在读取…</div></div>
+  </div>
+
+  <div id="page-week" hidden>
+    <div class="weekbar">
+      <button id="prevWeek">‹</button>
+      <div class="mid" id="weekTitle">第 – 周</div>
+      <button id="thisWeek">本周</button>
+      <button id="nextWeek">›</button>
+    </div>
+    <div id="grid"></div>
+  </div>
+</div>
+
+<nav>
+  <button class="on" data-tab="home">
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    作业
+  </button>
+  <button data-tab="week">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+    课表
+  </button>
+</nav>
+
+<script>
+const SRC = {ykt:'雨课堂', zhs:'智慧树', cx:'超星学习通', ktp:'课堂派', jw:'教务系统'};
+const COLORS = {ykt:'#3B82F6', zhs:'#10B981', cx:'#F97316', ktp:'#6366F1', jw:'#2F6FED'};
+const WEEK_COLORS = ['#4A86F7','#10B981','#F59E0B','#8B5CF6','#EC4899','#14B8A6','#F97316','#6366F1'];
+let data = null, tab = 'home', platform = '', due = 0, course = '', q = '', week = 0;
+
+const $ = id => document.getElementById(id);
+const DAY = 86400000;
+const pad = n => String(n).padStart(2,'0');
+
+function sundayOf(ms){ const d = new Date(ms); d.setHours(0,0,0,0); d.setDate(d.getDate() - d.getDay()); return d.getTime(); }
+
+async function load(){
+  try{
+    const r = await fetch('data?t=' + Date.now(), {cache:'no-store'});
+    data = await r.json();
+    if (!week) week = data.nowWeek || 1;
+    renderChips(); renderCourseSel(); renderHome(); renderWeek();
+  }catch(e){
+    $('list').innerHTML = '<div class="empty">读不到数据，确认手机上的「共享给电脑」还开着</div>';
+  }
+}
+
+function renderChips(){
+  const box = $('platformChips');
+  const list = [['','全部']].concat(Object.keys(SRC).filter(k => (data.homework||[]).some(h => h.source === k)).map(k => [k, SRC[k]]));
+  box.innerHTML = list.map(([k,n]) => `<button class="chip ${platform===k?'on':''}" data-k="${k}">${n}</button>`).join('');
+  box.querySelectorAll('.chip').forEach(b => b.onclick = () => { platform = b.dataset.k; renderChips(); renderHome(); });
+}
+
+function renderCourseSel(){
+  const sel = $('courseSel');
+  const courses = [...new Set((data.homework||[]).map(h => h.course).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">全部课程</option>' + courses.map(c => `<option ${c===course?'selected':''}>${c}</option>`).join('');
+  sel.onchange = () => { course = sel.value; renderHome(); };
+}
+
+function remain(h){
+  const now = Date.now(), d = h.dueAt - now;
+  if (!h.dueAt) return {text:'没有截止时间', color:'var(--text3)'};
+  if (d < 0){
+    const days = Math.floor(-d / DAY);
+    return {text: days >= 1 ? `已逾期 ${days} 天` : '已逾期', color:'var(--danger)'};
+  }
+  const days = Math.floor(d / DAY), hours = Math.floor(d / 3600000);
+  if (days >= 1) return {text:`剩 ${days} 天`, color: days <= 2 ? 'var(--warn)' : 'var(--text2)'};
+  if (hours >= 1) return {text:`剩 ${hours} 小时`, color:'var(--warn)'};
+  return {text:'马上截止', color:'var(--warn)'};
+}
+
+function dueText(ms){
+  if (!ms) return '';
+  const d = new Date(ms);
+  return `${d.getMonth()+1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function renderHome(){
+  const now = Date.now();
+  let items = (data.homework || []).filter(h => !h.done);
+  if (platform) items = items.filter(h => h.source === platform);
+  if (course) items = items.filter(h => h.course === course);
+  if (q) items = items.filter(h => (h.title||'').toLowerCase().includes(q.toLowerCase()));
+  if (due == 1) items = items.filter(h => h.dueAt && h.dueAt >= now && h.dueAt < now + DAY);
+  if (due == 2) items = items.filter(h => h.dueAt && h.dueAt >= now && h.dueAt < now + 7*DAY);
+  if (due == 3) items = items.filter(h => h.dueAt && h.dueAt < now);
+
+  const all = (data.homework || []).filter(h => !h.done);
+  $('statTotal').textContent = all.length;
+  $('statToday').textContent = all.filter(h => h.dueAt && h.dueAt >= now && h.dueAt < now + DAY).length;
+  $('statWeek').textContent = all.filter(h => h.dueAt && h.dueAt >= now && h.dueAt < now + 7*DAY).length;
+  $('statOver').textContent = all.filter(h => h.dueAt && h.dueAt < now).length;
+
+  if (!items.length){ $('list').innerHTML = '<div class="empty">这个筛选下没有作业</div>'; return; }
+  const groups = [
+    ['今天截止', h => h.dueAt && h.dueAt >= now && h.dueAt < now + DAY],
+    ['明天截止', h => h.dueAt && h.dueAt >= now + DAY && h.dueAt < now + 2*DAY],
+    ['七天内',   h => h.dueAt && h.dueAt >= now + 2*DAY && h.dueAt < now + 7*DAY],
+    ['以后',     h => h.dueAt && h.dueAt >= now + 7*DAY],
+    ['没有截止时间', h => !h.dueAt],
+    ['已逾期',   h => h.dueAt && h.dueAt < now],
+  ];
+  let html = '';
+  groups.forEach(([title, fn]) => {
+    const g = items.filter(fn).sort((a,b) => (a.dueAt||0) - (b.dueAt||0));
+    if (!g.length) return;
+    html += `<div class="section">${title} (${g.length})</div>`;
+    g.forEach(h => {
+      const r = remain(h);
+      const color = COLORS[h.source] || '#2F6FED';
+      const url = h.url ? `<span class="pill" style="background:${color}1a;color:${color}" onclick="openHw('${encodeURIComponent(h.url)}')">打开</span>` : '';
+      html += `<div class="card"><div class="stripe" style="background:${color}"></div><div class="main">
+        <div class="t">${esc(h.title)}</div>
+        <div class="meta">
+          <span class="pill" style="background:${color}1a;color:${color}">${SRC[h.source]||h.source}</span>
+          ${h.course ? `<span>${esc(h.course)}</span>` : ''}
+          ${h.kind && h.kind !== '作业' ? `<span>${esc(h.kind)}</span>` : ''}
+          <span class="due" style="color:${r.color};font-weight:600">${r.text}</span>
+          <span>${dueText(h.dueAt)}</span>
+          ${url}
+        </div></div></div>`;
+    });
+  });
+  $('list').innerHTML = html;
+}
+
+function esc(s){ return String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function openHw(u){ window.open(decodeURIComponent(u), '_blank'); }
+
+function renderWeek(){
+  const list = data.timetable || [], times = data.sectionTimes || {};
+  const w = week || 1;
+  const start = data.week1 ? sundayOf(data.week1) : 0;
+  const from = start + (w-1)*7*DAY, to = from + 7*DAY;
+  const fmt = ms => { const d = new Date(ms); return `${d.getMonth()+1}/${d.getDate()}`; };
+  $('weekTitle').textContent = `第 ${w} 周 · ${fmt(from)} - ${fmt(to-1)}` + (w === data.nowWeek ? ' · 本周' : '');
+  const DAYS = ['日','一','二','三','四','五','六'];
+  const todayIdx = new Date().getDay();
+  const slots = Object.keys(times).map(Number).sort((a,b)=>a-b);
+  let head = '<tr><th></th>' + DAYS.map((d,i) => `<th class="${i===todayIdx?'today':''}">${d}</th>`).join('') + '</tr>';
+  let rows = '';
+  slots.forEach(s => {
+    rows += '<tr>';
+    rows += `<td class="slot">${times[s] ? times[s].split('-')[0] : ''}</td>`;
+    for (let d = 0; d < 7; d++){
+      const dayNum = d === 0 ? 7 : d; // 周日=7
+      const cell = list.filter(t => t.day === dayNum && t.start === s && (!t.weeks || t.weeks.includes(w)));
+      rows += `<td class="${d===todayIdx?'today':''}">` + cell.map((t,i) => {
+        const c = WEEK_COLORS[Math.abs(hash(t.name)) % WEEK_COLORS.length];
+        return `<div class="course" style="background:${c}"><b>${esc(t.name)}</b>${t.room?esc(t.room):''}</div>`;
+      }).join('') + '</td>';
+    }
+    rows += '</tr>';
+  });
+  $('grid').innerHTML = `<table class="grid">${head}${rows}</table>`;
+}
+
+function hash(s){ let h = 0; for (let i = 0; i < (s||'').length; i++) h = (h*31 + s.charCodeAt(i)) | 0; return h; }
+
+$('dueSel').onchange = e => { due = +e.target.value; renderHome(); };
+$('search').oninput = e => { q = e.target.value; renderHome(); };
+$('prevWeek').onclick = () => { week = Math.max(1, (week||1) - 1); renderWeek(); };
+$('nextWeek').onclick = () => { week = Math.min(30, (week||1) + 1); renderWeek(); };
+$('thisWeek').onclick = () => { week = data.nowWeek || 1; renderWeek(); };
+
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  tab = b.dataset.tab;
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
+  $('page-home').hidden = tab !== 'home';
+  $('page-week').hidden = tab !== 'week';
+});
+
+$('syncBtn').onclick = async () => {
+  const btn = $('syncBtn');
+  btn.textContent = '同步中…'; btn.disabled = true;
+  try{ await fetch('sync', {method:'POST'}); }catch(e){}
+  setTimeout(() => { btn.textContent = '同步'; btn.disabled = false; load(); }, 2500);
+};
+
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>

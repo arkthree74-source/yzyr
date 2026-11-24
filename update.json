@@ -1,8 +1,8 @@
 {
-  "versionCode": 22,
-  "versionName": "3.0",
-  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@8bb7ec8cd05d3ce601f4e3ce51d1c9bc15da1a00/releases/yzyr-v3.0.apk",
-  "size": 5219630,
-  "sha256": "762ba4767641ab6d59591116e6f0d0be189a4bd170f4228cf3c9cdba557c362c",
-  "notes": "3.0：电脑版不用手抄地址了——电脑打开就会在局域网里自动找到开着「共享给电脑」的手机，作业和课表直接拉过去。"
+  "versionCode": 20,
+  "versionName": "2.8",
+  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@45834f712fef65f0d77897c42bcf95ee87bc88d2/releases/yzyr-v2.8.apk",
+  "size": 5215546,
+  "sha256": "f1deaffd1ee990bf60c247041d5e057e5ac623713a09ee11a4a88bde15117793",
+  "notes": "智慧树课程列表改成按页拉全，之前可能只显示第一页的课\n学习通把每门课的临期任务也合并进来，减少漏抓\n同步诊断里能看到这次抓到多少门课"
 }
