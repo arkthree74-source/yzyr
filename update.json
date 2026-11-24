@@ -1,8 +1,8 @@
 {
-  "versionCode": 15,
-  "versionName": "2.3",
-  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/releases/yzyr-v2.3.apk",
-  "size": 5201266,
-  "sha256": "cd3344cfcdccbdbda0731f7e8d0bfc533379f9c200c4f2e808a16dd2d3811359",
-  "notes": "v2.3：应用内更新正式启用（更新清单托管在 GitHub，走 jsDelivr CDN）；设置页、可选同步频率、同步记录、后台保活引导沿用 v2.2。"
+  "versionCode": 17,
+  "versionName": "2.5-test",
+  "url": "https://cdn.jsdelivr.net/gh/arkthree74-source/yzyr@main/releases/yzyr-v2.4.apk",
+  "size": 5201694,
+  "sha256": "10dc062e096709fa17c009ea713a3ef786f4b3bc903ad108d264566350d12069",
+  "notes": "测试用的假更新：用来验证「打开 App 就提醒更新」。"
 }
